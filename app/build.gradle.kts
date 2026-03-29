@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -55,6 +56,10 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // Google Services - Firebase AI Logic
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
 
     // Testing
     testImplementation(libs.junit)
