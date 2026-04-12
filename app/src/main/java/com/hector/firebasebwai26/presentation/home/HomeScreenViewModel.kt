@@ -16,7 +16,7 @@ data class HomeUiState(
     val geminiMessage: String? = ""
 )
 
-class HomeViewModel() : ViewModel() {
+ open class HomeViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
