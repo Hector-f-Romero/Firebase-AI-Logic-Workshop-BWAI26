@@ -1,11 +1,16 @@
 package com.hector.firebasebwai26.presentation.home
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -16,35 +21,61 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
-    homeViewModel: HomeViewModel = viewModel()
+    modifier: Modifier = Modifier, homeViewModel: HomeViewModel = viewModel()
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     var userPrompt by remember { mutableStateOf("") }
 
-    Column(modifier = modifier) {
-        Text("Bienvenidos al Workshop GDG 2026", fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
+    // Guardamos la URI de referencia a la imagen que queremos cargar.
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-        Column(Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .background(Color(0xFFD7D6D6))
-            .padding(20.dp)) {
-            Text("Respuesta de Gemini: ${uiState.geminiMessage}")
+    // Encargada de lanzar el contrato para seleccionar una foto desde nuestra galería por defecto.
+    val photoPickerLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
+            selectedImageUri = uri
         }
+
+    Column(modifier = modifier) {
+        Text(
+            "Bienvenidos al Workshop GDG 2026",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(20.dp)
+        )
 
         Column(
             Modifier
                 .fillMaxWidth()
+                .weight(1f)
+                .background(Color(0xFFD7D6D6))
+                .padding(20.dp)
         ) {
+            Text("Respuesta de Gemini: ${uiState.geminiMessage}")
+        }
+
+        Column(
+            Modifier.fillMaxWidth()
+        ) {
+
+            selectedImageUri?.let { uri ->
+                AsyncImage(
+                    model = uri,
+                    contentDescription = "Image prompt",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(8.dp)
+                )
+            }
 
             TextField(
                 value = userPrompt,
@@ -53,12 +84,13 @@ fun HomeScreen(
             )
 
             Row(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
             ) {
 
                 Button(onClick = {
-                    // TODO:
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
                 }) {
                     Text("Agregar foto", maxLines = 2)
                 }
