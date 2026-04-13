@@ -1,5 +1,9 @@
 package com.hector.firebasebwai26.presentation.home
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -16,7 +20,7 @@ data class HomeUiState(
     val geminiMessage: String? = ""
 )
 
- open class HomeViewModel() : ViewModel() {
+open class HomeViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -30,17 +34,35 @@ data class HomeUiState(
 
     private val chat = model.startChat()
 
-    fun chatWithGemini(prompt: String) {
-        viewModelScope.launch {
-            val rawResponse = chat.sendMessage(prompt)
+    private fun generateBitmap(uri: Uri, context: Context): Bitmap {
+        val bitmap =
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri))
 
-            _uiState.update { it.copy(geminiMessage = rawResponse.text) }
-        }
+        return bitmap
     }
 
-    fun increaseCounter() {
-        val newValue = _uiState.value.counter + 1
+    fun chatWithGemini(prompt: String, imageUri: Uri?, context: Context) {
+        viewModelScope.launch {
 
-        _uiState.update { it.copy(counter = newValue) }
+            var geminiResponse: String?
+
+            if (imageUri == null) {
+                val rawResponse = chat.sendMessage(prompt)
+
+                geminiResponse = rawResponse.text
+            } else {
+
+                val bitmap = generateBitmap(imageUri, context)
+
+                val rawResponse = chat.sendMessage(content {
+                    text(prompt)
+                    image(bitmap)
+                })
+
+                geminiResponse = rawResponse.text
+            }
+
+            _uiState.update { it.copy(geminiMessage = geminiResponse) }
+        }
     }
 }
