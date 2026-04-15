@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -51,6 +53,8 @@ fun HomeScreen(
     val context = LocalContext.current
 
     Column(modifier = modifier) {
+
+
         Text(
             "Bienvenidos al Workshop GDG 2026",
             fontWeight = FontWeight.Bold,
@@ -63,12 +67,31 @@ fun HomeScreen(
                 .weight(1f)
                 .background(Color(0xFFD7D6D6))
                 .padding(20.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Text("Respuesta de Gemini: ${uiState.geminiMessage}")
+
+            if(uiState.isLoading){
+                Spacer(Modifier.weight(1f))
+
+                CircularProgressIndicator(Modifier.size(80.dp).align(Alignment.CenterHorizontally))
+
+                Spacer(Modifier.weight(1f))
+                return@Column
+            }
+
+            if(!uiState.errorMessage.isBlank()){
+                Text("ERROR: ${uiState.errorMessage}", color = Color.Red)
+            }else{
+                Text("Respuesta de Gemini: ${uiState.geminiMessage}")
+
+                uiState.geminiImage?.let { bitmap ->
+                    AsyncImage(model = bitmap, contentDescription = "", modifier.size(400.dp))
+                }
+            }
         }
 
         Column(
-            Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+            Modifier.fillMaxWidth()
         ) {
 
             selectedImageUri?.let { uri ->
