@@ -5,16 +5,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -27,11 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.hector.firebasebwai26.R
 
 
 @Composable
@@ -70,18 +78,22 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
-            if(uiState.isLoading){
+            if (uiState.isLoading) {
                 Spacer(Modifier.weight(1f))
 
-                CircularProgressIndicator(Modifier.size(80.dp).align(Alignment.CenterHorizontally))
+                CircularProgressIndicator(
+                    Modifier
+                        .size(80.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
 
                 Spacer(Modifier.weight(1f))
                 return@Column
             }
 
-            if(!uiState.errorMessage.isBlank()){
+            if (!uiState.errorMessage.isBlank()) {
                 Text("ERROR: ${uiState.errorMessage}", color = Color.Red)
-            }else{
+            } else {
                 Text("Respuesta de Gemini: ${uiState.geminiMessage}")
 
                 uiState.geminiImage?.let { bitmap ->
@@ -95,14 +107,36 @@ fun HomeScreen(
         ) {
 
             selectedImageUri?.let { uri ->
-                AsyncImage(
-                    model = uri,
-                    contentDescription = "Image prompt",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(8.dp)
-                )
+                Box(Modifier
+                    .size(130.dp)
+                    .padding(8.dp)) {
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = "Image prompt",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    IconButton(
+                        onClick = {
+                            selectedImageUri = null
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(30.dp)
+                            .background(
+                                shape = CircleShape,
+                                color = Color.White
+                            )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_cancel),
+                            contentDescription = "Delete selected photo",
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+                }
+
             }
 
             TextField(
