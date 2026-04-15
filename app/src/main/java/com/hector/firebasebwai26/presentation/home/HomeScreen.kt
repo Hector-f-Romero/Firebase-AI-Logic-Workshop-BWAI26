@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,13 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,12 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -60,20 +66,31 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.background(Color(0xFFF0F1F1))) {
 
-
-        Text(
-            "Bienvenidos al Workshop GDG 2026",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(20.dp)
-        )
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFA2BEF5))
+                .padding(20.dp)
+        ) {
+            Text(
+                "Bienvenidos al Workshop BWAI 2026",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+            )
+            Text(
+                "Workshop guiado por: Héctor Romero",
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp,
+            )
+        }
 
         Column(
             Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(Color(0xFFD7D6D6))
+                .background(Color(0xFFF0F1F1))
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -103,13 +120,19 @@ fun HomeScreen(
         }
 
         Column(
-            Modifier.fillMaxWidth()
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .background(Color.White)
+                .padding(10.dp)
         ) {
 
             selectedImageUri?.let { uri ->
-                Box(Modifier
-                    .size(130.dp)
-                    .padding(8.dp)) {
+                Box(
+                    Modifier
+                        .size(130.dp)
+                        .padding(8.dp)
+                ) {
                     AsyncImage(
                         model = uri,
                         contentDescription = "Image prompt",
@@ -142,18 +165,34 @@ fun HomeScreen(
             TextField(
                 value = userPrompt,
                 onValueChange = { newValue -> userPrompt = newValue },
-                modifier = Modifier.fillMaxWidth()
+                placeholder = {
+                    Text("Escribe cómo quieres iniciar la historia")
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Send
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 6.dp)
             )
 
             Row(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
             ) {
 
                 Button(onClick = {
                     photoPickerLauncher.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
-                }) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5D5B7D))) {
                     Text("Agregar foto", maxLines = 2)
                 }
 
@@ -165,6 +204,8 @@ fun HomeScreen(
                         imageUri = selectedImageUri,
                         context = context,
                     )
+
+                    userPrompt = ""
                 }) {
 
                     Text("Preguntarle a Gemini", maxLines = 2)
