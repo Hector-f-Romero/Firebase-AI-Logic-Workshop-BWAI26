@@ -4,7 +4,7 @@ Repositorio base para el workshop **"Implementa Firebase AI Logic dentro de tu a
 
 ## Demo
 
-https://github.com/Hector-f-Romero/Firebase-AI-Logic-Workshop-BWAI26/raw/main/assets/demo.mp4
+https://github.com/user-attachments/assets/0224cb00-b2cb-44fc-8074-658b473a4f3f
 
 ## Tecnologías
 
